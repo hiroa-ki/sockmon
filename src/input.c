@@ -37,29 +37,33 @@ static void main_delay_handler(struct nm_ctx *n)
 		ch = wgetch(win);
 		if ('0' <= ch && ch <= '9') {
 			delay = (delay * 10) + (ch - '0');
+			if (delay > 255)
+				break;
 		} else if (ch == '\r' || ch == '\n') {
 			seen_nl = true;
 			break;
 		} else {
-			goto out;
+			break;
 		}
 	} while (1);
 
-	if (1 <= delay && delay <= 255) {
+	if (seen_nl) {
+		if (delay < 1 || delay > 255)
+			goto err;
+
 		if (n->delay != delay)
 			n->delay = delay;
 	} else {
-out:
+		do {
+			ch = wgetch(win);
+			if (ch == '\r' || ch == '\n')
+				seen_nl = true;
+		} while (!seen_nl);
+err:
 		werase(win);
 		nm_mvwprintw(win, n->cols, 0, 0, "Enter a value from 1 to 255");
 		wrefresh(win);
 		napms(3000);	/* Show the message for 3 seconds. */
-	}
-
-	while (!seen_nl) {
-		ch = wgetch(win);
-		if (ch == '\r' || ch == '\n')
-			seen_nl = true;
 	}
 
 	werase(win);
