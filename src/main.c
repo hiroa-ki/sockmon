@@ -2,6 +2,7 @@
 #include "nl.h"
 #include "draw.h"
 #include "input.h"
+#include "conn_info.h"
 #include <netinet/in.h>
 #include <string.h>
 
@@ -16,6 +17,17 @@ static void nm_ctx_init(struct nm_ctx *n)
 	n->family = AF_INET;
 	n->protocol = IPPROTO_TCP;
 	INIT_LIST_HEAD(&n->conn_list);
+}
+
+static void nm_ctx_exit(struct nm_ctx *n)
+{
+	struct conn_info *ci, *p;
+
+	list_for_each_entry_safe(ci, p, &n->conn_list, list) {
+		list_del(&ci->list);
+		conn_info_free(ci);
+		--n->nr_conns;
+	}
 }
 
 int main(int argc, char **argv)
@@ -45,6 +57,8 @@ int main(int argc, char **argv)
 	} while (!should_stop(&n));
 out:
 	window_exit(&n);
+
+	nm_ctx_exit(&n);
 
 	return err;
 }
