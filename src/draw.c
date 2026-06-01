@@ -469,7 +469,7 @@ static void dr_addr_common(WINDOW *win, int cols, int y, int x, int width,
 
 	if (!inet_ntop(family, addr, buf, sizeof(buf))) {
 		buf[0] = '?';
-		buf[1] = '\n';
+		buf[1] = '\0';
 	}
 
 	shift = (family == AF_INET) ? 8 : 0;
