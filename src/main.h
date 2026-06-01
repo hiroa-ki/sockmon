@@ -39,6 +39,7 @@ struct nm_ctx {
 	unsigned char		protocol;
 	unsigned char		ext_req;
 	unsigned int		ext_rcv;
+	int			sk;
 	int			nr_conns;
 	struct list_head	conn_list;
 };

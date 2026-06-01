@@ -18,6 +18,8 @@ enum {
 };
 
 extern int connections_dump(struct nm_ctx *n);
+extern int nl_init(struct nm_ctx *n);
+extern void nl_exit(struct nm_ctx *n);
 
 #endif	/* _NL_H */
 

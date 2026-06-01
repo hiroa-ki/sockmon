@@ -262,29 +262,18 @@ int connections_dump(struct nm_ctx *n)
 	static char buf[32768];
 	struct msghdr msg;
 	struct iovec iov;
-	int err, ret, sk;
+	int err, sk;
 	ssize_t sz;
 	size_t len;
 
 	err = 1;
-
-	sk = socket(AF_NETLINK, SOCK_DGRAM, NETLINK_SOCK_DIAG);
-	if (sk == -1) {
-		nm_perror(n, "socket", errno);
-		goto out;
-	}
+	sk = n->sk;
 
 	nladdr = (struct sockaddr_nl){
 		.nl_family	= AF_NETLINK,
 		.nl_pid		= 0,	/* kernel */
 		.nl_groups	= 0
 	};
-
-	ret = bind(sk, (const struct sockaddr *)&nladdr, sizeof(nladdr));
-	if (ret == -1) {
-		nm_perror(n, "bind", errno);
-		goto close_sk;
-	}
 
 	len = build_nlmsg(buf, n);
 
@@ -306,7 +295,7 @@ int connections_dump(struct nm_ctx *n)
 	sz = sendmsg(sk, &msg, 0);
 	if (sz == -1) {
 		nm_perror(n, "sendmsg", errno);
-		goto close_sk;
+		goto out;
 	}
 
 	/* We always receive INET_DIAG_NONE anyway. */
@@ -322,7 +311,7 @@ int connections_dump(struct nm_ctx *n)
 		sz = recvmsg(sk, &msg, 0);
 		if (sz == -1) {
 			nm_perror(n, "recvmsg", errno);
-			goto close_sk;
+			goto out;
 		}
 
 		for (nlh = (struct nlmsghdr *)buf; NLMSG_OK(nlh, sz);
@@ -339,17 +328,52 @@ int connections_dump(struct nm_ctx *n)
 					nm_perror(n, "NLMSG_ERROR",
 						  -err->error);
 
-				goto close_sk;
+				goto out;
 			}
 
 			if (diag_dump(n, nlh))
-				goto close_sk;
+				goto out;
 		}
 	}
 done:
 	err = 0;
-close_sk:
-	close(sk);
 out:
 	return err;
+}
+
+int nl_init(struct nm_ctx *n)
+{
+	struct sockaddr_nl nladdr;
+	int err, ret, sk;
+
+	err = 1;
+
+	sk = socket(AF_NETLINK, SOCK_DGRAM, NETLINK_SOCK_DIAG);
+	if (sk == -1) {
+		nm_perror(n, "socket", errno);
+		goto out;
+	}
+
+	nladdr = (struct sockaddr_nl){
+		.nl_family	= AF_NETLINK,
+		.nl_pid		= 0,	/* kernel */
+		.nl_groups	= 0
+	};
+
+	ret = bind(sk, (const struct sockaddr *)&nladdr, sizeof(nladdr));
+	if (ret == -1) {
+		nm_perror(n, "bind", errno);
+		close(sk);
+		goto out;
+	}
+
+	n->sk = sk;
+	err = 0;
+out:
+	return err;
+}
+
+void nl_exit(struct nm_ctx *n)
+{
+	close(n->sk);
 }

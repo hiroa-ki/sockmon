@@ -42,6 +42,9 @@ int main(int argc, char **argv)
 	if (window_init(&n))
 		goto out;
 
+	if (nl_init(&n))
+		goto out;
+
 	do {
 		if (n.cur_screen != SCREEN_MAIN)
 			continue;
@@ -55,6 +58,8 @@ int main(int argc, char **argv)
 		draw_connections(&n);
 		window_refresh();
 	} while (!should_stop(&n));
+
+	nl_exit(&n);
 out:
 	window_exit(&n);
 
