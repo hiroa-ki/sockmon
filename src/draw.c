@@ -557,17 +557,16 @@ static void dr_shutdown(WINDOW *win, int cols, int y, int x,
 	unsigned char shutdown;
 	const char *s;
 
-	shutdown = *(const char *)p;
+	shutdown = *(const char *)p & SHUTDOWN_MASK;
 
-	if ((shutdown & (RCV_SHUTDOWN | SEND_SHUTDOWN)) ==
-	    (RCV_SHUTDOWN | SEND_SHUTDOWN))
+	if (shutdown == (SEND_SHUTDOWN | RCV_SHUTDOWN))
 		s = "RDWR";
-	else if (shutdown & RCV_SHUTDOWN)
-		s = "RD  ";
-	else if (shutdown & SEND_SHUTDOWN)
+	else if (shutdown == SEND_SHUTDOWN)
 		s = "  WR";
+	else if (shutdown == RCV_SHUTDOWN)
+		s = "RD  ";
 	else
-		s = "";
+		s = "    ";
 
 	nm_mvwprintw(win, cols, y, x, "%*s", f->width, s);
 }

@@ -11,6 +11,7 @@ struct conn_info {
 	struct list_head		list;
 	unsigned char			tos;
 	unsigned char			tclass;
+#define SHUTDOWN_MASK	3
 #define RCV_SHUTDOWN	1
 #define SEND_SHUTDOWN	2
 	unsigned char			shutdown;
