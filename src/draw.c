@@ -501,8 +501,8 @@ static void dr_paddr(WINDOW *win, int cols, int y, int x, const struct field *f,
 		       r->id.idiag_dst, r->id.idiag_dport);
 }
 
-static void
-dr_state_common(WINDOW *win, int cols, int y, int x, int width, int state)
+static void dr_state_common(WINDOW *win, int cols, int y, int x, int width,
+			    unsigned char state)
 {
 	static const char * const state_str[] = {
 		"?",
@@ -528,11 +528,11 @@ dr_state_common(WINDOW *win, int cols, int y, int x, int width, int state)
 static void dr_state(WINDOW *win, int cols, int y, int x, const struct field *f,
 		     const void *p)
 {
-	const struct inet_diag_msg *r;
+	unsigned char state;
 
-	r = p;
+	state = *(unsigned char *)p;
 
-	dr_state_common(win, cols, y, x, f->width, r->idiag_state);
+	dr_state_common(win, cols, y, x, f->width, state);
 }
 
 static void dr_timer(WINDOW *win, int cols, int y, int x, const struct field *f,
@@ -794,7 +794,8 @@ struct field tcp_fields[] = {
 	DEFINE_FIELD("state",
 		     "Connection state",
 		     true, INET_DIAG_NONE, 11, TYPE_OTHER,
-		     offsetof(struct conn_info, r),
+		     offsetof(struct conn_info, r) +
+		     offsetof(struct inet_diag_msg, idiag_state),
 		     dr_state),
 	DEFINE_FIELD("rqueue",
 		     "",
