@@ -1,8 +1,8 @@
 #ifndef _MAIN_H
 #define _MAIN_H
 
+#include "bool.h"
 #include "list.h"
-#include <stdbool.h>
 #include <curses.h>
 
 enum screen_mode {
@@ -33,8 +33,8 @@ struct nm_ctx {
 	int			lines;
 	int			cols;
 	int			delay;
-	bool			should_stop;
-	bool			we_called;
+	unsigned char		should_stop;
+	unsigned char		we_called;
 	unsigned char		family;
 	unsigned char		protocol;
 	unsigned char		ext_req;

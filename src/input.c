@@ -17,8 +17,8 @@ static void main_ip6_handler(struct nm_ctx *n)
 
 static void main_delay_handler(struct nm_ctx *n)
 {
+	unsigned char seen_nl;
 	int ch, delay;
-	bool seen_nl;
 	WINDOW *win;
 
 	win = n->win[WINDOW_INTERACTIVE];
@@ -32,7 +32,7 @@ static void main_delay_handler(struct nm_ctx *n)
 	wrefresh(win);
 
 	delay = 0;
-	seen_nl = false;
+	seen_nl = FALSE;
 	do {
 		ch = wgetch(win);
 		if ('0' <= ch && ch <= '9') {
@@ -40,7 +40,7 @@ static void main_delay_handler(struct nm_ctx *n)
 			if (delay > 255)
 				break;
 		} else if (ch == '\r' || ch == '\n') {
-			seen_nl = true;
+			seen_nl = TRUE;
 			break;
 		} else {
 			break;
@@ -57,7 +57,7 @@ static void main_delay_handler(struct nm_ctx *n)
 		do {
 			ch = wgetch(win);
 			if (ch == '\r' || ch == '\n')
-				seen_nl = true;
+				seen_nl = TRUE;
 		} while (!seen_nl);
 err:
 		werase(win);
@@ -86,7 +86,7 @@ static void main_help_handler(struct nm_ctx *n)
 
 static void main_quit_handler(struct nm_ctx *n)
 {
-	n->should_stop = true;
+	n->should_stop = TRUE;
 }
 
 static void main_tcp_handler(struct nm_ctx *n)
@@ -411,7 +411,7 @@ static const struct key_handlers key_handlers[] = {
 	DEFINE_KEY_HANDLERS(SCREEN_HELP, help_key_handler)
 };
 
-bool should_stop(struct nm_ctx *n)
+unsigned char should_stop(struct nm_ctx *n)
 {
 	WINDOW *win;
 	int ch;

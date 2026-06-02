@@ -1,6 +1,7 @@
 #ifndef	_DRAW_H
 #define	_DRAW_H
 
+#include "bool.h"
 #include "main.h"
 #include <curses.h>
 #include <linux/inet_diag.h>
@@ -22,8 +23,8 @@ extern void draw_summary(struct nm_ctx *n);
 struct field {
 	const char	*header;
 	const char	*desc;
-	bool		enabled;
-	bool		pinned;
+	unsigned char	enabled;
+	unsigned char	pinned;
 #define	INET_DIAG_ADDRESS	(__INET_DIAG_MAX)
 	unsigned char	ext_req;
 	unsigned char	ext_rcv;

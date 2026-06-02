@@ -145,7 +145,7 @@ static void copy_skv6only(struct conn_info *ci, const void *p)
 
 	ipv6only = p;
 
-	ci->ipv6only = !!(*ipv6only);
+	ci->ipv6only = *ipv6only;
 }
 
 static void copy_bbrinfo(struct conn_info *ci, const void *p)

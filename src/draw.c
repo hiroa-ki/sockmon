@@ -72,7 +72,7 @@ void window_exit(struct nm_ctx *n)
 	}
 	endwin();
 
-	n->we_called = true;
+	n->we_called = TRUE;
 }
 
 void window_erase(struct nm_ctx *n)
@@ -135,13 +135,13 @@ void nm_mvwprintw(WINDOW *win, int cols, int y, int x, const char *fmt, ...)
 
 static void draw_protocol(struct nm_ctx *n, int y, const struct conn_info *ci)
 {
+	unsigned char drawn;
 	int i, x, skip_x;
 	WINDOW *win;
-	bool drawn;
 
 	win = n->win[WINDOW_CONN_INFO];
 	x = 0;
-	drawn = false;
+	drawn = FALSE;
 	skip_x = n->pos[SCREEN_MAIN].x;
 
 	for (i = 0; i < nr_tcp_fields && x < n->cols; ++i) {
@@ -185,7 +185,7 @@ static void draw_protocol(struct nm_ctx *n, int y, const struct conn_info *ci)
 		x += width;
 
 		if (!drawn)
-			drawn = true;
+			drawn = TRUE;
 	}
 }
 
@@ -194,14 +194,14 @@ void draw_connections(struct nm_ctx *n)
 	int i, y, x, skip_y, skip_x;
 	struct conn_info *ci, *p;
 	struct position *pos;
+	unsigned char drawn;
 	WINDOW *win;
-	bool drawn;
 
 	win = n->win[WINDOW_CONN_INFO];
 	pos = &n->pos[SCREEN_MAIN];
 	y = 0;
 	x = 0;
-	drawn = false;
+	drawn = FALSE;
 	skip_x = pos->x;
 
 	if (n->nr_conns > 0) {
@@ -252,7 +252,7 @@ void draw_connections(struct nm_ctx *n)
 		x += width;
 
 		if (!drawn)
-			drawn = true;
+			drawn = TRUE;
 	}
 	wattroff(win, A_REVERSE);
 	++y;
@@ -316,7 +316,7 @@ enum {
 	TYPE_S64,
 	TYPE_U64,
 	TYPE_STRING,
-	TYPE_BOOL,
+	TYPE_BOOL_U8,
 	TYPE_BOOL_U16,
 	TYPE_BOOL_U32,
 	TYPE_BIT_U8,
@@ -342,7 +342,6 @@ static void dr_common(WINDOW *win, int cols, int y, int x,
 		signed long long	sl;
 		unsigned long long	ul;
 		const char		*str;
-		bool			b;
 	} data;
 	const char *fmt, *s;
 	int width, nr;
@@ -404,11 +403,11 @@ static void dr_common(WINDOW *win, int cols, int y, int x,
 		nm_mvwprintw(win, cols, y, x, fmt, width, data.str);
 		break;
 
-	case TYPE_BOOL:
+	case TYPE_BOOL_U8:
 		fmt = "%*s";
-		data.b = *(bool *)p;
+		data.uc = *(unsigned short *)p;
 		nm_mvwprintw(win, cols, y, x, fmt, width,
-			     (data.b) ? "true" : "false");
+			     (data.uc) ? "true" : "false");
 		break;
 
 	case TYPE_BOOL_U16:
@@ -772,806 +771,806 @@ static void dr_defer_connect(WINDOW *win, int cols, int y, int x,
 
 struct field tcp_fields[] = {
 #define DEFINE_FIELD(header, desc, enabled, ext, width, type, offset, draw_row)	\
-	{header, desc, enabled, false, ext, ext, width, type, offset, draw_row}
+	{header, desc, enabled, FALSE, ext, ext, width, type, offset, draw_row}
 	DEFINE_FIELD("inet_diag:",
 		     "",
-		     false, INET_DIAG_NONE, 0, TYPE_OTHER,
+		     FALSE, INET_DIAG_NONE, 0, TYPE_OTHER,
 		     0,
 		     NULL),
 #define DEFINE_FIELD2(header, desc, enabled, ext_req, ext_rcv, width, type, offset, draw_row)	\
-	{header, desc, enabled, false, ext_req, ext_rcv, width, type, offset, draw_row}
+	{header, desc, enabled, FALSE, ext_req, ext_rcv, width, type, offset, draw_row}
 	DEFINE_FIELD2("Local Address",
 		      "Local IP Address and port",
-		      true, INET_DIAG_NONE, INET_DIAG_ADDRESS, 21 << 8 | 51,
+		      TRUE, INET_DIAG_NONE, INET_DIAG_ADDRESS, 21 << 8 | 51,
 		      TYPE_OTHER, offsetof(struct conn_info, r),
 		      dr_laddr),
 	DEFINE_FIELD2("Peer Address",
 		      "Remote IP address and port",
-		      true, INET_DIAG_NONE, INET_DIAG_ADDRESS, 21 << 8 | 51,
+		      TRUE, INET_DIAG_NONE, INET_DIAG_ADDRESS, 21 << 8 | 51,
 		      TYPE_OTHER, offsetof(struct conn_info, r),
 		      dr_paddr),
 	DEFINE_FIELD("state",
 		     "Connection state",
-		     true, INET_DIAG_NONE, 11, TYPE_OTHER,
+		     TRUE, INET_DIAG_NONE, 11, TYPE_OTHER,
 		     offsetof(struct conn_info, r) +
 		     offsetof(struct inet_diag_msg, idiag_state),
 		     dr_state),
 	DEFINE_FIELD("rqueue",
 		     "",
-		     true, INET_DIAG_NONE, 6, TYPE_U32,
+		     TRUE, INET_DIAG_NONE, 6, TYPE_U32,
 		     offsetof(struct conn_info, r) +
 		     offsetof(struct inet_diag_msg, idiag_rqueue),
 		     dr_common),
 	DEFINE_FIELD("wqueue",
 		     "",
-		     true, INET_DIAG_NONE, 6, TYPE_U32,
+		     TRUE, INET_DIAG_NONE, 6, TYPE_U32,
 		     offsetof(struct conn_info, r) +
 		     offsetof(struct inet_diag_msg, idiag_wqueue),
 		     dr_common),
 	DEFINE_FIELD("timer",
 		     "",
-		     false, INET_DIAG_NONE, 9, TYPE_OTHER,
+		     FALSE, INET_DIAG_NONE, 9, TYPE_OTHER,
 		     offsetof(struct conn_info, r) +
 		     offsetof(struct inet_diag_msg, idiag_timer),
 		     dr_timer),
 	DEFINE_FIELD("retrans",
 		     "",
-		     false, INET_DIAG_NONE, 7, TYPE_U8,
+		     FALSE, INET_DIAG_NONE, 7, TYPE_U8,
 		     offsetof(struct conn_info, r) +
 		     offsetof(struct inet_diag_msg, idiag_retrans),
 		     dr_common),
 	DEFINE_FIELD("if",
 		     "",
-		     false, INET_DIAG_NONE, 2, TYPE_U32,
+		     FALSE, INET_DIAG_NONE, 2, TYPE_U32,
 		     offsetof(struct conn_info, r) +
 		     offsetof(struct inet_diag_msg, id.idiag_if),
 		     dr_common),
 	DEFINE_FIELD("expires",
 		     "",
-		     false, INET_DIAG_NONE, 7, TYPE_U32,
+		     FALSE, INET_DIAG_NONE, 7, TYPE_U32,
 		     offsetof(struct conn_info, r) +
 		     offsetof(struct inet_diag_msg, idiag_expires),
 		     dr_common),
 	DEFINE_FIELD("uid",
 		     "",
-		     false, INET_DIAG_NONE, 6, TYPE_U32,
+		     FALSE, INET_DIAG_NONE, 6, TYPE_U32,
 		     offsetof(struct conn_info, r) +
 		     offsetof(struct inet_diag_msg, idiag_uid),
 		     dr_common),
 	DEFINE_FIELD("inode",
 		     "",
-		     false, INET_DIAG_NONE, 7, TYPE_U32,
+		     FALSE, INET_DIAG_NONE, 7, TYPE_U32,
 		     offsetof(struct conn_info, r) +
 		     offsetof(struct inet_diag_msg, idiag_inode),
 		     dr_common),
 	DEFINE_FIELD("tos",
 		     "",
-		     false, INET_DIAG_TOS, 3, TYPE_U8,
+		     FALSE, INET_DIAG_TOS, 3, TYPE_U8,
 		     offsetof(struct conn_info, tos),
 		     dr_common),
 	DEFINE_FIELD("tclass",
 		     "",
-		     false, INET_DIAG_TCLASS, 6, TYPE_U8,
+		     FALSE, INET_DIAG_TCLASS, 6, TYPE_U8,
 		     offsetof(struct conn_info, tclass),
 		     dr_common),
 	DEFINE_FIELD("shutdown",
 		     "",
-		     false, INET_DIAG_SHUTDOWN, 8, TYPE_OTHER,
+		     FALSE, INET_DIAG_SHUTDOWN, 8, TYPE_OTHER,
 		     offsetof(struct conn_info, shutdown),
 		     dr_shutdown),
 	DEFINE_FIELD("ipv6only",
 		     "",
-		     false, INET_DIAG_SKV6ONLY, 8, TYPE_BOOL,
+		     FALSE, INET_DIAG_SKV6ONLY, 8, TYPE_BOOL_U8,
 		     offsetof(struct conn_info, ipv6only),
 		     dr_common),
 	DEFINE_FIELD("classid",
 		     "",
-		     false, INET_DIAG_CLASS_ID, 7, TYPE_U32,
+		     FALSE, INET_DIAG_CLASS_ID, 7, TYPE_U32,
 		     offsetof(struct conn_info, classid),
 		     dr_common),
 	DEFINE_FIELD("cgroup_id",
 		     "",
-		     false, INET_DIAG_CGROUP_ID, 9, TYPE_U64,
+		     FALSE, INET_DIAG_CGROUP_ID, 9, TYPE_U64,
 		     offsetof(struct conn_info, cgroup_id),
 		     dr_common),
 	DEFINE_FIELD("meminfo:",
 		     "",
-		     false, INET_DIAG_MEMINFO, 0, TYPE_OTHER,
+		     FALSE, INET_DIAG_MEMINFO, 0, TYPE_OTHER,
 		     0,
 		     NULL),
 	DEFINE_FIELD("rmem",
 		     "",
-		     false, INET_DIAG_MEMINFO, 6, TYPE_U32,
+		     FALSE, INET_DIAG_MEMINFO, 6, TYPE_U32,
 		     offsetof(struct conn_info, minfo) +
 		     offsetof(struct inet_diag_meminfo, idiag_rmem),
 		     dr_common),
 	DEFINE_FIELD("wmem",
 		     "",
-		     false, INET_DIAG_MEMINFO, 6, TYPE_U32,
+		     FALSE, INET_DIAG_MEMINFO, 6, TYPE_U32,
 		     offsetof(struct conn_info, minfo) +
 		     offsetof(struct inet_diag_meminfo, idiag_wmem),
 		     dr_common),
 	DEFINE_FIELD("fmem",
 		     "",
-		     false, INET_DIAG_MEMINFO, 6, TYPE_U32,
+		     FALSE, INET_DIAG_MEMINFO, 6, TYPE_U32,
 		     offsetof(struct conn_info, minfo) +
 		     offsetof(struct inet_diag_meminfo, idiag_fmem),
 		     dr_common),
 	DEFINE_FIELD("tmem",
 		     "",
-		     false, INET_DIAG_MEMINFO, 6, TYPE_U32,
+		     FALSE, INET_DIAG_MEMINFO, 6, TYPE_U32,
 		     offsetof(struct conn_info, minfo) +
 		     offsetof(struct inet_diag_meminfo, idiag_tmem),
 		     dr_common),
 	DEFINE_FIELD("tcp_info:",
 		     "",
-		     false, INET_DIAG_INFO, 0, TYPE_OTHER,
+		     FALSE, INET_DIAG_INFO, 0, TYPE_OTHER,
 		     0,
 		     NULL),
 	DEFINE_FIELD("state",
 		     "",
-		     false, INET_DIAG_INFO, 11, TYPE_OTHER,
+		     FALSE, INET_DIAG_INFO, 11, TYPE_OTHER,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_state),
 		     dr_info_state),
 	DEFINE_FIELD("ca_state",
 		     "",
-		     false, INET_DIAG_INFO, 8, TYPE_OTHER,
+		     FALSE, INET_DIAG_INFO, 8, TYPE_OTHER,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_ca_state),
 		     dr_ca_state),
 	DEFINE_FIELD("retransmits",
 		     "",
-		     false, INET_DIAG_INFO, 11, TYPE_U8,
+		     FALSE, INET_DIAG_INFO, 11, TYPE_U8,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_retransmits),
 		     dr_common),
 	DEFINE_FIELD("probes",
 		     "",
-		     false, INET_DIAG_INFO, 6, TYPE_U8,
+		     FALSE, INET_DIAG_INFO, 6, TYPE_U8,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_probes),
 		     dr_common),
 	DEFINE_FIELD("backoff",
 		     "",
-		     false, INET_DIAG_INFO, 7, TYPE_U8,
+		     FALSE, INET_DIAG_INFO, 7, TYPE_U8,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_backoff),
 		     dr_common),
 	DEFINE_FIELD("options",
 		     "",
-		     false, INET_DIAG_INFO, 34, TYPE_OTHER,
+		     FALSE, INET_DIAG_INFO, 34, TYPE_OTHER,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_options),
 		     dr_options),
 	DEFINE_FIELD("snd_wscale",
 		     "",
-		     false, INET_DIAG_INFO, 10, TYPE_OTHER,
+		     FALSE, INET_DIAG_INFO, 10, TYPE_OTHER,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_options) +
 		     sizeof(unsigned char),
 		     dr_snd_wscale),
 	DEFINE_FIELD("rcv_wscale",
 		     "",
-		     false, INET_DIAG_INFO, 10, TYPE_OTHER,
+		     FALSE, INET_DIAG_INFO, 10, TYPE_OTHER,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_options) +
 		     sizeof(unsigned char),
 		     dr_rcv_wscale),
 	DEFINE_FIELD("delivery_rate_app_limited",
 		     "",
-		     false, INET_DIAG_INFO, 25, TYPE_OTHER,
+		     FALSE, INET_DIAG_INFO, 25, TYPE_OTHER,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_options) +
 		     sizeof(unsigned char) + sizeof(unsigned char),
 		     dr_delivery_rate_app_limited),
 	DEFINE_FIELD("fastopen_client_fail",
 		     "",
-		     false, INET_DIAG_INFO, 20, TYPE_OTHER,
+		     FALSE, INET_DIAG_INFO, 20, TYPE_OTHER,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_options) +
 		     sizeof(unsigned char) + sizeof(unsigned char),
 		     dr_fastopen_client_fail),
 	DEFINE_FIELD("rto",
 		     "",
-		     false, INET_DIAG_INFO, 8, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 8, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_rto),
 		     dr_common),
 	DEFINE_FIELD("ato",
 		     "",
-		     false, INET_DIAG_INFO, 8, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 8, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_ato),
 		     dr_common),
 	DEFINE_FIELD("snd_mss",
 		     "",
-		     false, INET_DIAG_INFO, 7, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 7, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_snd_mss),
 		     dr_common),
 	DEFINE_FIELD("rcv_mss",
 		     "",
-		     false, INET_DIAG_INFO, 7, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 7, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_rcv_mss),
 		     dr_common),
 	DEFINE_FIELD("unacked",
 		     "",
-		     false, INET_DIAG_INFO, 7, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 7, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_unacked),
 		     dr_common),
 	DEFINE_FIELD("sacked",
 		     "",
-		     false, INET_DIAG_INFO, 6, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 6, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_sacked),
 		     dr_common),
 	DEFINE_FIELD("lost",
 		     "",
-		     false, INET_DIAG_INFO, 4, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 4, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_lost),
 		     dr_common),
 	DEFINE_FIELD("retrans",
 		     "",
-		     false, INET_DIAG_INFO, 7, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 7, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_retrans),
 		     dr_common),
 	DEFINE_FIELD("fackets",
 		     "",
-		     false, INET_DIAG_INFO, 7, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 7, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_fackets),
 		     dr_common),
 	DEFINE_FIELD("last_data_sent",
 		     "",
-		     false, INET_DIAG_INFO, 14, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 14, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_last_data_sent),
 		     dr_common),
 	DEFINE_FIELD("last_ack_sent",
 		     "",
-		     false, INET_DIAG_INFO, 13, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 13, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_last_ack_sent),
 		     dr_common),
 	DEFINE_FIELD("last_data_recv",
 		     "",
-		     false, INET_DIAG_INFO, 14, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 14, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_last_data_recv),
 		     dr_common),
 	DEFINE_FIELD("last_ack_recv",
 		     "",
-		     false, INET_DIAG_INFO, 13, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 13, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_last_ack_recv),
 		     dr_common),
 	DEFINE_FIELD("pmtu",
 		     "",
-		     false, INET_DIAG_INFO, 6, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 6, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_pmtu),
 		     dr_common),
 	DEFINE_FIELD("rcv_ssthresh",
 		     "",
-		     false, INET_DIAG_INFO, 12, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 12, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_rcv_ssthresh),
 		     dr_common),
 	DEFINE_FIELD("rtt",
 		     "",
-		     false, INET_DIAG_INFO, 8, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 8, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_rtt),
 		     dr_common),
 	DEFINE_FIELD("rttvar",
 		     "",
-		     false, INET_DIAG_INFO, 8, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 8, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_rttvar),
 		     dr_common),
 	DEFINE_FIELD("snd_ssthresh",
 		     "",
-		     false, INET_DIAG_INFO, 12, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 12, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_snd_ssthresh),
 		     dr_common),
 	DEFINE_FIELD("snd_cwnd",
 		     "",
-		     false, INET_DIAG_INFO, 8, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 8, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_snd_cwnd),
 		     dr_common),
 	DEFINE_FIELD("advmss",
 		     "",
-		     false, INET_DIAG_INFO, 6, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 6, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_advmss),
 		     dr_common),
 	DEFINE_FIELD("reordering",
 		     "",
-		     false, INET_DIAG_INFO, 10, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 10, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_reordering),
 		     dr_common),
 	DEFINE_FIELD("rcv_rtt",
 		     "",
-		     false, INET_DIAG_INFO, 10, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 10, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_rcv_rtt),
 		     dr_common),
 	DEFINE_FIELD("rcv_space",
 		     "",
-		     false, INET_DIAG_INFO, 9, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 9, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_rcv_space),
 		     dr_common),
 	DEFINE_FIELD("total_retrans",
 		     "",
-		     false, INET_DIAG_INFO, 13, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 13, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_total_retrans),
 		     dr_common),
 	DEFINE_FIELD("pacing_rate",
 		     "",
-		     false, INET_DIAG_INFO, 11, TYPE_U64,
+		     FALSE, INET_DIAG_INFO, 11, TYPE_U64,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_pacing_rate),
 		     dr_common),
 	DEFINE_FIELD("max_pacing_rate",
 		     "",
-		     false, INET_DIAG_INFO, 20, TYPE_U64,
+		     FALSE, INET_DIAG_INFO, 20, TYPE_U64,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_max_pacing_rate),
 		     dr_common),
 	DEFINE_FIELD("bytes_acked",
 		     "",
-		     false, INET_DIAG_INFO, 15, TYPE_U64,
+		     FALSE, INET_DIAG_INFO, 15, TYPE_U64,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_bytes_acked),
 		     dr_common),
 	DEFINE_FIELD("bytes_received",
 		     "",
-		     false, INET_DIAG_INFO, 15, TYPE_U64,
+		     FALSE, INET_DIAG_INFO, 15, TYPE_U64,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_bytes_received),
 		     dr_common),
 	DEFINE_FIELD("segs_out",
 		     "",
-		     false, INET_DIAG_INFO, 8, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 8, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_segs_out),
 		     dr_common),
 	DEFINE_FIELD("segs_in",
 		     "",
-		     false, INET_DIAG_INFO, 8, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 8, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_segs_in),
 		     dr_common),
 	DEFINE_FIELD("notsent_bytes",
 		     "",
-		     false, INET_DIAG_INFO, 13, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 13, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_notsent_bytes),
 		     dr_common),
 	DEFINE_FIELD("min_rtt",
 		     "",
-		     false, INET_DIAG_INFO, 8, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 8, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_min_rtt),
 		     dr_common),
 	DEFINE_FIELD("data_segs_in",
 		     "",
-		     false, INET_DIAG_INFO, 12, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 12, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_data_segs_in),
 		     dr_common),
 	DEFINE_FIELD("data_segs_out",
 		     "",
-		     false, INET_DIAG_INFO, 13, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 13, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_data_segs_out),
 		     dr_common),
 	DEFINE_FIELD("delivery_rate",
 		     "",
-		     false, INET_DIAG_INFO, 13, TYPE_U64,
+		     FALSE, INET_DIAG_INFO, 13, TYPE_U64,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_delivery_rate),
 		     dr_common),
 	DEFINE_FIELD("busy_time",
 		     "",
-		     false, INET_DIAG_INFO, 10, TYPE_U64,
+		     FALSE, INET_DIAG_INFO, 10, TYPE_U64,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_busy_time),
 		     dr_common),
 	DEFINE_FIELD("rwnd_limited",
 		     "",
-		     false, INET_DIAG_INFO, 12, TYPE_U64,
+		     FALSE, INET_DIAG_INFO, 12, TYPE_U64,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_rwnd_limited),
 		     dr_common),
 	DEFINE_FIELD("sndbuf_limited",
 		     "",
-		     false, INET_DIAG_INFO, 14, TYPE_U64,
+		     FALSE, INET_DIAG_INFO, 14, TYPE_U64,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_sndbuf_limited),
 		     dr_common),
 	DEFINE_FIELD("delivered",
 		     "",
-		     false, INET_DIAG_INFO, 9, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 9, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_delivered),
 		     dr_common),
 	DEFINE_FIELD("delivered_ce",
 		     "",
-		     false, INET_DIAG_INFO, 12, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 12, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_delivered_ce),
 		     dr_common),
 	DEFINE_FIELD("bytes_sent",
 		     "",
-		     false, INET_DIAG_INFO, 15, TYPE_U64,
+		     FALSE, INET_DIAG_INFO, 15, TYPE_U64,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_bytes_sent),
 		     dr_common),
 	DEFINE_FIELD("bytes_retrans",
 		     "",
-		     false, INET_DIAG_INFO, 13, TYPE_U64,
+		     FALSE, INET_DIAG_INFO, 13, TYPE_U64,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_bytes_retrans),
 		     dr_common),
 	DEFINE_FIELD("dsack_dups",
 		     "",
-		     false, INET_DIAG_INFO, 10, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 10, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_dsack_dups),
 		     dr_common),
 	DEFINE_FIELD("reord_seen",
 		     "",
-		     false, INET_DIAG_INFO, 10, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 10, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_reord_seen),
 		     dr_common),
 	DEFINE_FIELD("rcv_ooopack",
 		     "",
-		     false, INET_DIAG_INFO, 11, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 11, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_rcv_ooopack),
 		     dr_common),
 	DEFINE_FIELD("snd_wnd",
 		     "",
-		     false, INET_DIAG_INFO, 10, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 10, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_snd_wnd),
 		     dr_common),
 	DEFINE_FIELD("rcv_wnd",
 		     "",
-		     false, INET_DIAG_INFO, 10, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 10, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_rcv_wnd),
 		     dr_common),
 	DEFINE_FIELD("rehash",
 		     "",
-		     false, INET_DIAG_INFO, 6, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 6, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_rehash),
 		     dr_common),
 	DEFINE_FIELD("total_rto",
 		     "",
-		     false, INET_DIAG_INFO, 9, TYPE_U16,
+		     FALSE, INET_DIAG_INFO, 9, TYPE_U16,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_total_rto),
 		     dr_common),
 	DEFINE_FIELD("total_rto_recoveries",
 		     "",
-		     false, INET_DIAG_INFO, 20, TYPE_U16,
+		     FALSE, INET_DIAG_INFO, 20, TYPE_U16,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_total_rto_recoveries),
 		     dr_common),
 	DEFINE_FIELD("total_rto_time",
 		     "",
-		     false, INET_DIAG_INFO, 14, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 14, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_total_rto_time),
 		     dr_common),
 	DEFINE_FIELD("received_ce",
 		     "",
-		     false, INET_DIAG_INFO, 11, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 11, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_received_ce),
 		     dr_common),
 	DEFINE_FIELD("delivered_e1_bytes",
 		     "",
-		     false, INET_DIAG_INFO, 18, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 18, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_delivered_e1_bytes),
 		     dr_common),
 	DEFINE_FIELD("delivered_e0_bytes",
 		     "",
-		     false, INET_DIAG_INFO, 18, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 18, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_delivered_e0_bytes),
 		     dr_common),
 	DEFINE_FIELD("delivered_ce_bytes",
 		     "",
-		     false, INET_DIAG_INFO, 18, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 18, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_delivered_ce_bytes),
 		     dr_common),
 	DEFINE_FIELD("received_e1_bytes",
 		     "",
-		     false, INET_DIAG_INFO, 17, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 17, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_received_e1_bytes),
 		     dr_common),
 	DEFINE_FIELD("received_e0_bytes",
 		     "",
-		     false, INET_DIAG_INFO, 17, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 17, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_received_e0_bytes),
 		     dr_common),
 	DEFINE_FIELD("received_ce_bytes",
 		     "",
-		     false, INET_DIAG_INFO, 17, TYPE_U32,
+		     FALSE, INET_DIAG_INFO, 17, TYPE_U32,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_received_ce_bytes),
 		     dr_common),
 	DEFINE_FIELD("ecn_mode",
 		     "",
-		     false, INET_DIAG_INFO, 8, TYPE_OTHER,
+		     FALSE, INET_DIAG_INFO, 8, TYPE_OTHER,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_received_ce_bytes) +
 		     sizeof(unsigned int),
 		     dr_ecn_mode),
 	DEFINE_FIELD("accecn_opt_seen",
 		     "",
-		     false, INET_DIAG_INFO, 15, TYPE_OTHER,
+		     FALSE, INET_DIAG_INFO, 15, TYPE_OTHER,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_received_ce_bytes) +
 		     sizeof(unsigned int),
 		     dr_accecn_opt_seen),
 	DEFINE_FIELD("accecn_fail_mode",
 		     "",
-		     false, INET_DIAG_INFO, 16, TYPE_OTHER,
+		     FALSE, INET_DIAG_INFO, 16, TYPE_OTHER,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_received_ce_bytes) +
 		     sizeof(unsigned int),
 		     dr_accecn_fail_mode),
 	DEFINE_FIELD("Congestion control:",
 		     "",
-		     false, INET_DIAG_CONG, 0, TYPE_OTHER,
+		     FALSE, INET_DIAG_CONG, 0, TYPE_OTHER,
 		     0,
 		     NULL),
 	DEFINE_FIELD("Module",
 		     "",
-		     false, INET_DIAG_CONG, 16, TYPE_STRING,
+		     FALSE, INET_DIAG_CONG, 16, TYPE_STRING,
 		     offsetof(struct conn_info, ca_name),
 		     dr_common),
 	DEFINE_FIELD("Vegas info:",
 		     "",
-		     false, INET_DIAG_VEGASINFO, 0, TYPE_OTHER,
+		     FALSE, INET_DIAG_VEGASINFO, 0, TYPE_OTHER,
 		     0,
 		     NULL),
 	DEFINE_FIELD("enabled",
 		     "",
-		     false, INET_DIAG_VEGASINFO, 7, TYPE_BOOL_U32,
+		     FALSE, INET_DIAG_VEGASINFO, 7, TYPE_BOOL_U32,
 		     offsetof(struct conn_info, cc_info) +
 		     offsetof(struct tcpvegas_info, tcpv_enabled),
 		     dr_common),
 	DEFINE_FIELD("rttcnt",
 		     "",
-		     false, INET_DIAG_VEGASINFO, 6, TYPE_U32,
+		     FALSE, INET_DIAG_VEGASINFO, 6, TYPE_U32,
 		     offsetof(struct conn_info, cc_info) +
 		     offsetof(struct tcpvegas_info, tcpv_rttcnt),
 		     dr_common),
 	DEFINE_FIELD("rtt",
 		     "",
-		     false, INET_DIAG_VEGASINFO, 8, TYPE_U32,
+		     FALSE, INET_DIAG_VEGASINFO, 8, TYPE_U32,
 		     offsetof(struct conn_info, cc_info) +
 		     offsetof(struct tcpvegas_info, tcpv_rtt),
 		     dr_common),
 	DEFINE_FIELD("minrtt",
 		     "",
-		     false, INET_DIAG_VEGASINFO, 10, TYPE_U32,
+		     FALSE, INET_DIAG_VEGASINFO, 10, TYPE_U32,
 		     offsetof(struct conn_info, cc_info) +
 		     offsetof(struct tcpvegas_info, tcpv_minrtt),
 		     dr_common),
 	DEFINE_FIELD("DCTCP info:",
 		     "",
-		     false, INET_DIAG_DCTCPINFO, 0, TYPE_OTHER,
+		     FALSE, INET_DIAG_DCTCPINFO, 0, TYPE_OTHER,
 		     0,
 		     NULL),
 	DEFINE_FIELD2("enabled",
 		      "",
-		      false, INET_DIAG_VEGASINFO, INET_DIAG_DCTCPINFO,
+		      FALSE, INET_DIAG_VEGASINFO, INET_DIAG_DCTCPINFO,
 		      7, TYPE_BOOL_U16,
 		      offsetof(struct conn_info, cc_info) +
 		      offsetof(struct tcp_dctcp_info, dctcp_enabled),
 		      dr_common),
 	DEFINE_FIELD2("ce_state",
 		      "",
-		      false, INET_DIAG_VEGASINFO, INET_DIAG_DCTCPINFO,
+		      FALSE, INET_DIAG_VEGASINFO, INET_DIAG_DCTCPINFO,
 		      8, TYPE_U16,
 		      offsetof(struct conn_info, cc_info) +
 		      offsetof(struct tcp_dctcp_info, dctcp_ce_state),
 		      dr_common),
 	DEFINE_FIELD2("alpha",
 		      "",
-		      false, INET_DIAG_VEGASINFO, INET_DIAG_DCTCPINFO,
+		      FALSE, INET_DIAG_VEGASINFO, INET_DIAG_DCTCPINFO,
 		      5, TYPE_U32,
 		      offsetof(struct conn_info, cc_info) +
 		      offsetof(struct tcp_dctcp_info, dctcp_alpha),
 		      dr_common),
 	DEFINE_FIELD2("ab_ecn",
 		      "",
-		      false, INET_DIAG_VEGASINFO, INET_DIAG_DCTCPINFO,
+		      FALSE, INET_DIAG_VEGASINFO, INET_DIAG_DCTCPINFO,
 		      6, TYPE_U32,
 		      offsetof(struct conn_info, cc_info) +
 		      offsetof(struct tcp_dctcp_info, dctcp_ab_ecn),
 		      dr_common),
 	DEFINE_FIELD2("ab_tot",
 		      "",
-		      false, INET_DIAG_VEGASINFO, INET_DIAG_DCTCPINFO,
+		      FALSE, INET_DIAG_VEGASINFO, INET_DIAG_DCTCPINFO,
 		      6, TYPE_U32,
 		      offsetof(struct conn_info, cc_info) +
 		      offsetof(struct tcp_dctcp_info, dctcp_ab_tot),
 		      dr_common),
 	DEFINE_FIELD("BBR info:",
 		     "",
-		     false, INET_DIAG_BBRINFO, 0, TYPE_OTHER,
+		     FALSE, INET_DIAG_BBRINFO, 0, TYPE_OTHER,
 		     0,
 		     NULL),
 	DEFINE_FIELD2("bw",
 		      "",
-		      false, INET_DIAG_VEGASINFO, INET_DIAG_BBRINFO,
+		      FALSE, INET_DIAG_VEGASINFO, INET_DIAG_BBRINFO,
 		      10, TYPE_OTHER,
 		      offsetof(struct conn_info, cc_info) +
 		      offsetof(struct tcp_bbr_info, bbr_bw_lo),
 		      dr_bbr_bw),
 	DEFINE_FIELD2("min_rtt",
 		      "",
-		      false, INET_DIAG_VEGASINFO, INET_DIAG_BBRINFO,
+		      FALSE, INET_DIAG_VEGASINFO, INET_DIAG_BBRINFO,
 		      7, TYPE_U32,
 		      offsetof(struct conn_info, cc_info) +
 		      offsetof(struct tcp_bbr_info, bbr_min_rtt),
 		      dr_common),
 	DEFINE_FIELD2("pacing_gain",
 		      "",
-		      false, INET_DIAG_VEGASINFO, INET_DIAG_BBRINFO,
+		      FALSE, INET_DIAG_VEGASINFO, INET_DIAG_BBRINFO,
 		      11, TYPE_U32,
 		      offsetof(struct conn_info, cc_info) +
 		      offsetof(struct tcp_bbr_info, bbr_pacing_gain),
 		      dr_common),
 	DEFINE_FIELD2("cwnd_gain",
 		      "",
-		      false, INET_DIAG_VEGASINFO, INET_DIAG_BBRINFO,
+		      FALSE, INET_DIAG_VEGASINFO, INET_DIAG_BBRINFO,
 		      9, TYPE_U32,
 		      offsetof(struct conn_info, cc_info) +
 		      offsetof(struct tcp_bbr_info, bbr_cwnd_gain),
 		      dr_common),
 	DEFINE_FIELD("skmeminfo:",
 		     "",
-		     false, INET_DIAG_SKMEMINFO, 0, TYPE_OTHER,
+		     FALSE, INET_DIAG_SKMEMINFO, 0, TYPE_OTHER,
 		     0,
 		     NULL),
 	DEFINE_FIELD("rmem_alloc",
 		     "",
-		     false, INET_DIAG_SKMEMINFO, 10, TYPE_U32,
+		     FALSE, INET_DIAG_SKMEMINFO, 10, TYPE_U32,
 		     offsetof(struct conn_info, mem) +
 		     sizeof(unsigned int) * SK_MEMINFO_RMEM_ALLOC,
 		     dr_common),
 	DEFINE_FIELD("rcvbuf",
 		     "",
-		     false, INET_DIAG_SKMEMINFO, 8, TYPE_U32,
+		     FALSE, INET_DIAG_SKMEMINFO, 8, TYPE_U32,
 		     offsetof(struct conn_info, mem) +
 		     sizeof(unsigned int) * SK_MEMINFO_RCVBUF,
 		     dr_common),
 	DEFINE_FIELD("wmem_alloc",
 		     "",
-		     false, INET_DIAG_SKMEMINFO, 10, TYPE_U32,
+		     FALSE, INET_DIAG_SKMEMINFO, 10, TYPE_U32,
 		     offsetof(struct conn_info, mem) +
 		     sizeof(unsigned int) * SK_MEMINFO_WMEM_ALLOC,
 		     dr_common),
 	DEFINE_FIELD("sndbuf",
 		     "",
-		     false, INET_DIAG_SKMEMINFO, 8, TYPE_U32,
+		     FALSE, INET_DIAG_SKMEMINFO, 8, TYPE_U32,
 		     offsetof(struct conn_info, mem) +
 		     sizeof(unsigned int) * SK_MEMINFO_SNDBUF,
 		     dr_common),
 	DEFINE_FIELD("fwd_alloc",
 		     "",
-		     false, INET_DIAG_SKMEMINFO, 9, TYPE_U32,
+		     FALSE, INET_DIAG_SKMEMINFO, 9, TYPE_U32,
 		     offsetof(struct conn_info, mem) +
 		     sizeof(unsigned int) * SK_MEMINFO_FWD_ALLOC,
 		     dr_common),
 	DEFINE_FIELD("wmem_queued",
 		     "",
-		     false, INET_DIAG_SKMEMINFO, 11, TYPE_U32,
+		     FALSE, INET_DIAG_SKMEMINFO, 11, TYPE_U32,
 		     offsetof(struct conn_info, mem) +
 		     sizeof(unsigned int) * SK_MEMINFO_WMEM_QUEUED,
 		     dr_common),
 	DEFINE_FIELD("optmem",
 		     "",
-		     false, INET_DIAG_SKMEMINFO, 6, TYPE_U32,
+		     FALSE, INET_DIAG_SKMEMINFO, 6, TYPE_U32,
 		     offsetof(struct conn_info, mem) +
 		     sizeof(unsigned int) * SK_MEMINFO_OPTMEM,
 		     dr_common),
 	DEFINE_FIELD("backlog",
 		     "",
-		     false, INET_DIAG_SKMEMINFO, 7, TYPE_U32,
+		     FALSE, INET_DIAG_SKMEMINFO, 7, TYPE_U32,
 		     offsetof(struct conn_info, mem) +
 		     sizeof(unsigned int) * SK_MEMINFO_BACKLOG,
 		     dr_common),
 	DEFINE_FIELD("drops",
 		     "",
-		     false, INET_DIAG_SKMEMINFO, 5, TYPE_U32,
+		     FALSE, INET_DIAG_SKMEMINFO, 5, TYPE_U32,
 		     offsetof(struct conn_info, mem) +
 		     sizeof(unsigned int) * SK_MEMINFO_DROPS,
 		     dr_common),
 	DEFINE_FIELD("sockopt:",
 		     "",
-		     false, INET_DIAG_SOCKOPT, 0, TYPE_OTHER,
+		     FALSE, INET_DIAG_SOCKOPT, 0, TYPE_OTHER,
 		     0,
 		     NULL),
 	DEFINE_FIELD("recverr",
 		     "",
-		     false, INET_DIAG_SOCKOPT, 7, TYPE_BIT_U8 | 0 << 8,
+		     FALSE, INET_DIAG_SOCKOPT, 7, TYPE_BIT_U8 | 0 << 8,
 		     offsetof(struct conn_info, inet_sockopt) + 0,
 		     dr_common),
 	DEFINE_FIELD("is_icsk",
 		     "",
-		     false, INET_DIAG_SOCKOPT, 7, TYPE_BIT_U8 | 1 << 8,
+		     FALSE, INET_DIAG_SOCKOPT, 7, TYPE_BIT_U8 | 1 << 8,
 		     offsetof(struct conn_info, inet_sockopt) + 0,
 		     dr_common),
 	DEFINE_FIELD("freebind",
 		     "",
-		     false, INET_DIAG_SOCKOPT, 8, TYPE_BIT_U8 | 2 << 8,
+		     FALSE, INET_DIAG_SOCKOPT, 8, TYPE_BIT_U8 | 2 << 8,
 		     offsetof(struct conn_info, inet_sockopt) + 0,
 		     dr_common),
 	DEFINE_FIELD("hdrincl",
 		     "",
-		     false, INET_DIAG_SOCKOPT, 7, TYPE_BIT_U8 | 3 << 8,
+		     FALSE, INET_DIAG_SOCKOPT, 7, TYPE_BIT_U8 | 3 << 8,
 		     offsetof(struct conn_info, inet_sockopt) + 0,
 		     dr_common),
 	DEFINE_FIELD("mc_loop",
 		     "",
-		     false, INET_DIAG_SOCKOPT, 7, TYPE_BIT_U8 | 4 << 8,
+		     FALSE, INET_DIAG_SOCKOPT, 7, TYPE_BIT_U8 | 4 << 8,
 		     offsetof(struct conn_info, inet_sockopt) + 0,
 		     dr_common),
 	DEFINE_FIELD("transparent",
 		     "",
-		     false, INET_DIAG_SOCKOPT, 11, TYPE_BIT_U8 | 5 << 8,
+		     FALSE, INET_DIAG_SOCKOPT, 11, TYPE_BIT_U8 | 5 << 8,
 		     offsetof(struct conn_info, inet_sockopt) + 0,
 		     dr_common),
 	DEFINE_FIELD("mc_all",
 		     "",
-		     false, INET_DIAG_SOCKOPT, 6, TYPE_BIT_U8 | 6 << 8,
+		     FALSE, INET_DIAG_SOCKOPT, 6, TYPE_BIT_U8 | 6 << 8,
 		     offsetof(struct conn_info, inet_sockopt) + 0,
 		     dr_common),
 	DEFINE_FIELD("nodefrag",
 		     "",
-		     false, INET_DIAG_SOCKOPT, 8, TYPE_BIT_U8 | 7 << 8,
+		     FALSE, INET_DIAG_SOCKOPT, 8, TYPE_BIT_U8 | 7 << 8,
 		     offsetof(struct conn_info, inet_sockopt) + 0,
 		     dr_common),
 	DEFINE_FIELD("bind_address_no_port",
 		     "",
-		     false, INET_DIAG_SOCKOPT, 20, TYPE_OTHER,
+		     FALSE, INET_DIAG_SOCKOPT, 20, TYPE_OTHER,
 		     offsetof(struct conn_info, inet_sockopt) +
 		     sizeof(unsigned char),
 		     dr_bind_address_no_port),
 	DEFINE_FIELD("recverr_rfc4884",
 		     "",
-		     false, INET_DIAG_SOCKOPT, 15, TYPE_OTHER,
+		     FALSE, INET_DIAG_SOCKOPT, 15, TYPE_OTHER,
 		     offsetof(struct conn_info, inet_sockopt) +
 		     sizeof(unsigned char),
 		     dr_recverr_rfc4884),
 	DEFINE_FIELD("defer_connect",
 		     "",
-		     false, INET_DIAG_SOCKOPT, 13, TYPE_OTHER,
+		     FALSE, INET_DIAG_SOCKOPT, 13, TYPE_OTHER,
 		     offsetof(struct conn_info, inet_sockopt) +
 		     sizeof(unsigned char),
 		     dr_defer_connect),
@@ -1579,7 +1578,7 @@ struct field tcp_fields[] = {
 
 const int nr_tcp_fields = ARRAY_SIZE(tcp_fields);
 
-static void draw_header(WINDOW *win, int cols, int y, int x, bool reverse,
+static void draw_header(WINDOW *win, int cols, int y, int x, int reverse,
 			const struct field *f)
 {
 	const char *fmt;

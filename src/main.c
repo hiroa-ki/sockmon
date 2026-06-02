@@ -12,8 +12,8 @@ static void nm_ctx_init(struct nm_ctx *n)
 
 	n->cur_screen = SCREEN_MAIN;
 	n->delay = 30;	/* 30 tenths of a second */
-	n->should_stop = false;
-	n->we_called = false;
+	n->should_stop = FALSE;
+	n->we_called = FALSE;
 	n->family = AF_INET;
 	n->protocol = IPPROTO_TCP;
 	INIT_LIST_HEAD(&n->conn_list);

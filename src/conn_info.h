@@ -1,11 +1,11 @@
 #ifndef	_CONN_INFO_H
 #define _CONN_INFO_H
 
+#include "bool.h"
 #include "list.h"
 #include <linux/inet_diag.h>
 #include <linux/sock_diag.h>
 #include <linux/tcp.h>
-#include <stdbool.h>
 
 struct conn_info {
 	struct list_head		list;
@@ -15,7 +15,7 @@ struct conn_info {
 #define RCV_SHUTDOWN	1
 #define SEND_SHUTDOWN	2
 	unsigned char			shutdown;
-	bool				ipv6only;
+	unsigned char			ipv6only;
 	unsigned int			classid;
 	struct inet_diag_msg		r;
 	struct inet_diag_meminfo	minfo;
