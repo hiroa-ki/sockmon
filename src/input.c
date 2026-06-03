@@ -233,6 +233,27 @@ static void field_quit_handler(struct nm_ctx *n)
 	common_quit_handler(n);
 }
 
+static void field_sort_handler(struct nm_ctx *n)
+{
+	const struct position *pos;
+	struct field *f;
+
+	pos = &n->pos[SCREEN_FIELD];
+	f = &tcp_fields[pos->y];
+
+	if (n->sort_key == f) {
+		if (n->sort_ascending)
+			n->sort_ascending = false;
+		else
+			n->sort_key = NULL;
+	} else {
+		n->sort_key = f;
+		n->sort_ascending = true;
+	}
+
+	draw_field_header(n);
+}
+
 static void field_key_down_handler(struct nm_ctx *n)
 {
 	struct position *pos;
@@ -259,9 +280,14 @@ static void field_key_up_handler(struct nm_ctx *n)
 	draw_field_header(n);
 }
 
-static void swap_field(struct field *a, struct field *b)
+static void swap_field(struct nm_ctx *n, struct field *a, struct field *b)
 {
 	struct field tmp;
+
+	if (n->sort_key == a)
+		n->sort_key = b;
+	else if (n->sort_key == b)
+		n->sort_key = a;
 
 	tmp = *a;
 	*a = *b;
@@ -288,11 +314,11 @@ static void field_key_left_handler(struct nm_ctx *n)
 	f = &tcp_fields[n->sel_field - &tcp_fields[0]];
 	if (n->sel_field < &tcp_fields[pos->y]) {
 		do {
-			swap_field(f, f + 1);
+			swap_field(n, f, f + 1);
 		} while (++f < &tcp_fields[pos->y]);
 	} else if (n->sel_field > &tcp_fields[pos->y]) {
 		do {
-			swap_field(f, f - 1);
+			swap_field(n, f, f - 1);
 		} while (--f > &tcp_fields[pos->y]);
 	}
 
@@ -385,6 +411,7 @@ static const struct key_handler field_key_handler[] = {
 	DEFINE_KEY_HANDLER(' ', field_space_handler),
 	DEFINE_KEY_HANDLER('p', field_pin_handler),
 	DEFINE_KEY_HANDLER('q', field_quit_handler),
+	DEFINE_KEY_HANDLER('s', field_sort_handler),
 	DEFINE_KEY_HANDLER(KEY_DOWN, field_key_down_handler),
 	DEFINE_KEY_HANDLER(KEY_UP, field_key_up_handler),
 	DEFINE_KEY_HANDLER(KEY_LEFT, field_key_left_handler),

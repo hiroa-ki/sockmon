@@ -2,7 +2,6 @@
 #include "nl.h"
 #include "draw.h"
 #include "input.h"
-#include "conn_info.h"
 #include <netinet/in.h>
 #include <string.h>
 

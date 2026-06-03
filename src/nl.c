@@ -1,5 +1,4 @@
 #include "nl.h"
-#include "conn_info.h"
 #include "draw.h"
 #include <errno.h>
 #include <string.h>
@@ -245,7 +244,7 @@ static int diag_dump(struct nm_ctx *n, const struct nlmsghdr *nlh)
 	ci->ext = ext;
 	n->ext_rcv |= ext;
 
-	list_add_tail(&ci->list, &n->conn_list);
+	add_conn_info(n, ci);
 	n->nr_conns++;
 
 	err = 0;

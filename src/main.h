@@ -29,12 +29,14 @@ struct nm_ctx {
 	WINDOW			*win[WINDOW_MAX];
 	struct position		pos[SCREEN_MAX];
 	struct field		*sel_field;
+	struct field		*sort_key;
 	enum screen_mode	cur_screen;
 	int			lines;
 	int			cols;
 	int			delay;
 	unsigned char		should_stop;
 	unsigned char		we_called;
+	unsigned char		sort_ascending;
 	unsigned char		family;
 	unsigned char		protocol;
 	unsigned char		ext_req;

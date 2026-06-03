@@ -3,6 +3,7 @@
 
 #include "bool.h"
 #include "main.h"
+#include "conn_info.h"
 #include <curses.h>
 #include <linux/inet_diag.h>
 
@@ -33,11 +34,14 @@ struct field {
 	size_t		offset;
 	void		(*draw_row)(WINDOW *, int, int, int,
 				    const struct field *, const void *);
+	int		(*sort_func)(const struct field *, const void *,
+				     const void*);
 };
 
 extern struct field tcp_fields[];
 extern const int nr_tcp_fields;
 extern void draw_field_header(struct nm_ctx *n);
 extern void draw_help(struct nm_ctx *n);
+extern void add_conn_info(struct nm_ctx *n, struct conn_info *ci);
 
 #endif	/* _DRAW_H */
