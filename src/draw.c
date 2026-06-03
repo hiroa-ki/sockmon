@@ -301,7 +301,7 @@ void draw_summary(struct nm_ctx *n)
 		protocol = "?";
 
 	nm_mvwprintw(win, n->cols, 0, 0, "%s - %02d:%02d:%02d | %s/%s: %d",
-		     COMMAND_NAME, tm->tm_hour, tm->tm_min, tm->tm_sec,
+		     PROGRAM_NAME, tm->tm_hour, tm->tm_min, tm->tm_sec,
 		     protocol, family, n->nr_conns);
 	wnoutrefresh(win);
 }
@@ -1988,7 +1988,7 @@ void draw_help(struct nm_ctx *n)
 	werase(win);
 	nm_mvwprintw(win, n->cols, y++, 0,
 		     "Command Help - %s %s",
-		     COMMAND_NAME, VERSION_STR);
+		     PROGRAM_NAME, VERSION_STR);
 	nm_mvwprintw(win, n->cols, y++, 0, "Delay %d (0.1s)", n->delay);
 	++y;
 	nm_mvwprintw(win, n->cols, y++, 2, "d: Change delay");
