@@ -576,16 +576,6 @@ static void dr_shutdown(WINDOW *win, int cols, int y, int x,
 	nm_mvwprintw(win, cols, y, x, "%*s", f->width, s);
 }
 
-static void dr_info_state(WINDOW *win, int cols, int y, int x,
-			  const struct field *f, const void *p)
-{
-	unsigned char state;
-
-	state = *(unsigned char *)p;
-
-	dr_state_common(win, cols, y, x, f->width, state);
-}
-
 static void dr_ca_state(WINDOW *win, int cols, int y, int x,
 			const struct field *f, const void *p)
 {
@@ -1233,7 +1223,7 @@ struct field tcp_fields[] = {
 		     FALSE, INET_DIAG_INFO, 11, TYPE_U8,
 		     offsetof(struct conn_info, info) +
 		     offsetof(struct tcp_info, tcpi_state),
-		     dr_info_state, sort_common),
+		     dr_state, sort_common),
 	DEFINE_FIELD("ca_state",
 		     "",
 		     FALSE, INET_DIAG_INFO, 8, TYPE_U8,
