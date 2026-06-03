@@ -3,12 +3,12 @@ sockmon is a tool for monitoring TCP/UDP connections on Linux. It retrieves conn
 
 ## Screenshots
 ### Main view
-![Main view](https://hiroa-ki.github.io/screenshots/sockmon/0.1.0-0001.png)  
+![Main view](https://hiroa-ki.github.io/screenshots/sockmon/0.2.0-0001.png)  
 Peer addresses have been redacted.
 
 ### Field configuration
-![Field configuration](https://hiroa-ki.github.io/screenshots/sockmon/0.1.0-0002.png)  
-![Field configuration](https://hiroa-ki.github.io/screenshots/sockmon/0.1.0-0003.png)
+![Field configuration](https://hiroa-ki.github.io/screenshots/sockmon/0.2.0-0002.png)  
+![Field configuration](https://hiroa-ki.github.io/screenshots/sockmon/0.2.0-0003.png)
 
 ## Requirements
 - Meson
