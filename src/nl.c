@@ -224,8 +224,10 @@ static int diag_dump(struct nm_ctx *n, const struct nlmsghdr *nlh)
 	rta_len = nlh->nlmsg_len - NLMSG_LENGTH(sizeof(*r));
 
 	ci = conn_info_alloc();
-	if (!ci)
+	if (!ci) {
+		nm_perror(n, "conn_info_alloc", errno);
 		goto out;
+	}
 
 	ci->r = *r;
 
