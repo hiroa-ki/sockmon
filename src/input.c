@@ -242,13 +242,13 @@ static void field_sort_handler(struct nm_ctx *n)
 	f = &tcp_fields[pos->y];
 
 	if (n->sort_key == f) {
-		if (n->sort_ascending)
-			n->sort_ascending = false;
+		if (!n->sort_ascending)
+			n->sort_ascending = true;
 		else
 			n->sort_key = NULL;
 	} else {
 		n->sort_key = f;
-		n->sort_ascending = true;
+		n->sort_ascending = false;
 	}
 
 	draw_field_header(n);
