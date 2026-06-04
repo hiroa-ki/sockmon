@@ -18,7 +18,7 @@
 			 (1 << TCP_LISTEN)	|	\
 			 (1 << TCP_CLOSING))
 
-static size_t build_nlmsg(void *p, struct nm_ctx *n)
+static size_t build_request(void *p, struct nm_ctx *n)
 {
 	struct inet_diag_req_v2 *r;
 	struct nlmsghdr *nlh;
@@ -276,7 +276,7 @@ int connections_dump(struct nm_ctx *n)
 		.nl_groups	= 0
 	};
 
-	len = build_nlmsg(buf, n);
+	len = build_request(buf, n);
 
 	iov = (struct iovec){
 		.iov_base	= buf,
