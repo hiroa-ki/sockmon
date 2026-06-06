@@ -1,4 +1,4 @@
-src = ['main.c', 'nl.c', 'draw.c', 'conn_info.c', 'input.c']
+src = ['main.c', 'nl.c', 'draw.c', 'conn_info.c', 'input.c', 'proc.c']
 ncursesw_dep = dependency('ncursesw')
 executable('sockmon',
   sources : src,

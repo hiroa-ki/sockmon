@@ -3,6 +3,7 @@
 
 #include "bool.h"
 #include "list.h"
+#include "proc.h"
 #include <linux/inet_diag.h>
 #include <linux/sock_diag.h>
 #include <linux/tcp.h>
@@ -27,6 +28,8 @@ struct conn_info {
 	unsigned int			mem[SK_MEMINFO_VARS];
 	unsigned long long		cgroup_id;
 	struct inet_diag_sockopt	inet_sockopt;
+	pid_t				pid;
+	char				comm[TASK_COMM_LEN];
 };
 
 extern struct conn_info* conn_info_alloc(void);

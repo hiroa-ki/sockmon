@@ -1,5 +1,6 @@
 #include "nl.h"
 #include "draw.h"
+#include "proc.h"
 #include <errno.h>
 #include <string.h>
 #include <linux/rtnetlink.h>
@@ -37,7 +38,7 @@ static size_t build_request(void *p, struct nm_ctx *n)
 	*r = (struct inet_diag_req_v2){
 		.sdiag_family	= n->family,
 		.sdiag_protocol	= n->protocol,
-		.idiag_ext	= n->ext_req,
+		.idiag_ext	= (unsigned char)n->ext_req,
 		.idiag_states	= TCPF_ALL,
 		.id		= {
 			.idiag_sport	= 0,
@@ -230,6 +231,13 @@ static int diag_dump(struct nm_ctx *n, const struct nlmsghdr *nlh)
 	}
 
 	ci->r = *r;
+	if (ext_is_set(n->ext_req, INET_DIAG_PROC)) {
+		int found;
+
+		found = lookup_socket_owner(r->idiag_inode, &ci->pid, ci->comm);
+		if (found)
+			ext |= (1U << INET_DIAG_PROC);
+	}
 
 	for (rta = (struct rtattr *)(r + 1); RTA_OK(rta, rta_len);
 	     rta = RTA_NEXT(rta, rta_len)) {

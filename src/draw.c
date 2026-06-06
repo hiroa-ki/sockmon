@@ -267,6 +267,7 @@ void draw_connections(struct nm_ctx *n)
 		conn_info_free(ci);
 		--n->nr_conns;
 	}
+	free_sk_proc_map(n);
 
 	wnoutrefresh(win);
 }
@@ -1153,6 +1154,16 @@ struct field tcp_fields[] = {
 		     FALSE, INET_DIAG_NONE, 7, TYPE_U32,
 		     offsetof(struct conn_info, r) +
 		     offsetof(struct inet_diag_msg, idiag_inode),
+		     dr_common, sort_common),
+	DEFINE_FIELD("pid",
+		     "",
+		     FALSE, INET_DIAG_PROC, 8, TYPE_U32,
+		     offsetof(struct conn_info, pid),
+		     dr_common, sort_common),
+	DEFINE_FIELD("comm",
+		     "",
+		     FALSE, INET_DIAG_PROC, 16, TYPE_STRING,
+		     offsetof(struct conn_info, comm),
 		     dr_common, sort_common),
 	DEFINE_FIELD("tos",
 		     "",

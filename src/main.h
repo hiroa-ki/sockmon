@@ -39,7 +39,7 @@ struct nm_ctx {
 	unsigned char		sort_ascending;
 	unsigned char		family;
 	unsigned char		protocol;
-	unsigned char		ext_req;
+	unsigned int		ext_req;
 	unsigned int		ext_rcv;
 	int			sk;
 	int			nr_conns;

@@ -26,7 +26,8 @@ struct field {
 	const char	*desc;
 	unsigned char	enabled;
 	unsigned char	pinned;
-#define	INET_DIAG_ADDRESS	(__INET_DIAG_MAX)
+#define	INET_DIAG_ADDRESS	(__INET_DIAG_MAX + 0)
+#define INET_DIAG_PROC		(__INET_DIAG_MAX + 1)
 	unsigned char	ext_req;
 	unsigned char	ext_rcv;
 	int		width;
@@ -37,6 +38,16 @@ struct field {
 	int		(*sort_func)(const struct field *, const void *,
 				     const void*);
 };
+
+static inline void ext_set(unsigned int *ext, int flag)
+{
+	*ext |= 1 << (flag - 1);
+}
+
+static inline int ext_is_set(unsigned int ext, int flag)
+{
+	return ext & (1 << (flag - 1));
+}
 
 extern struct field tcp_fields[];
 extern const int nr_tcp_fields;

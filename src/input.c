@@ -202,16 +202,9 @@ static void field_pin_handler(struct nm_ctx *n)
 	draw_field_header(n);
 }
 
-static void ext_set(unsigned char *ext, int flag)
-{
-	/* idiag_ext has only 8 bits. */
-	if (flag <= 8)
-		*ext |= 1 << (flag - 1);
-}
-
 static void field_quit_handler(struct nm_ctx *n)
 {
-	unsigned char ext_req;
+	unsigned int ext_req;
 	int i;
 
 	ext_req = 0;

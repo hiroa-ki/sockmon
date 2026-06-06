@@ -2,6 +2,7 @@
 #include "nl.h"
 #include "draw.h"
 #include "input.h"
+#include "proc.h"
 #include <netinet/in.h>
 #include <string.h>
 
@@ -41,14 +42,17 @@ int main(int argc, char **argv)
 	if (window_init(&n))
 		goto out;
 
-	if (nl_init(&n))
+	if (proc_init(&n))
 		goto out;
+
+	if (nl_init(&n))
+		goto out_proc_exit;
 
 	do {
 		if (n.cur_screen != SCREEN_MAIN)
 			continue;
 
-		err = connections_dump(&n);
+		err = build_sk_proc_map(&n) || connections_dump(&n);
 		if (err)
 			break;
 
@@ -59,6 +63,8 @@ int main(int argc, char **argv)
 	} while (!should_stop(&n));
 
 	nl_exit(&n);
+out_proc_exit:
+	proc_exit(&n);
 out:
 	window_exit(&n);
 
