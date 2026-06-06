@@ -267,7 +267,7 @@ void draw_connections(struct nm_ctx *n)
 		conn_info_free(ci);
 		--n->nr_conns;
 	}
-	free_sk_proc_map(n);
+	free_sk_proc_map(n, TRUE);
 
 	wnoutrefresh(win);
 }

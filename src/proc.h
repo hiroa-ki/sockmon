@@ -8,7 +8,7 @@
 
 extern int lookup_socket_owner(unsigned int inode, pid_t *pid, char *comm);
 extern int build_sk_proc_map(struct nm_ctx *n);
-extern int free_sk_proc_map(struct nm_ctx *n);
+extern int free_sk_proc_map(struct nm_ctx *n, int resize);
 extern int proc_init(struct nm_ctx *n);
 extern void proc_exit(struct nm_ctx *n);
 

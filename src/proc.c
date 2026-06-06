@@ -16,8 +16,6 @@ struct sk_owner {
 	char			comm[TASK_COMM_LEN];
 };
 
-FILE *dfp;
-
 static char proc_path[256];
 static size_t proc_path_len;
 static DIR *dp_proc;
@@ -290,7 +288,7 @@ err_out:
 	return err;
 }
 
-int free_sk_proc_map(struct nm_ctx *n)
+int free_sk_proc_map(struct nm_ctx *n, int resize)
 {
 	int err, i, new_map_hash_shift;
 	unsigned int new_map_hash_sz;
@@ -321,7 +319,7 @@ int free_sk_proc_map(struct nm_ctx *n)
 		sk_ino_hb[i] = NULL;
 	}
 
-	if (map_hash_sz != new_map_hash_sz) {
+	if (resize && map_hash_sz != new_map_hash_sz) {
 		free(sk_ino_hb);
 		sk_ino_hb = calloc(new_map_hash_sz, sizeof(struct sk_owner *));
 		if (!sk_ino_hb) {
@@ -378,6 +376,6 @@ void proc_exit(struct nm_ctx *n)
 	if (ret)
 		nm_perror(n, "pric: closedir", errno);
 
-	free_sk_proc_map(n);
+	free_sk_proc_map(n, FALSE);
 	free(sk_ino_hb);
 }
