@@ -21,11 +21,25 @@ nm_mvwprintw(WINDOW *win, int cols, int y, int x, const char *fmt, ...)
 extern void draw_connections(struct nm_ctx *n);
 extern void draw_summary(struct nm_ctx *n);
 
+struct filter {
+	struct filter			*next;
+	int				op;
+	union {
+		unsigned long long	v;
+		unsigned int		selected;
+		struct {
+			unsigned char	addr[16];
+			unsigned char	mask[16];
+			unsigned char	family;
+		};
+		char			*s;
+	};
+};
+
 struct field {
 	const char	*header;
 	const char	*desc;
-	unsigned char	enabled;
-	unsigned char	pinned;
+	unsigned char	enabled:1, pinned:1, filter_on:1;
 #define	INET_DIAG_ADDRESS	(__INET_DIAG_MAX + 0)
 #define INET_DIAG_PROC		(__INET_DIAG_MAX + 1)
 	unsigned char	ext_req;
@@ -37,6 +51,9 @@ struct field {
 				    const struct field *, const void *);
 	int		(*sort_func)(const struct field *, const void *,
 				     const void*);
+	int		(*filter_parse)(const struct nm_ctx *, struct field *);
+	int		(*filter_apply)(const struct field *, const void *);
+	struct filter	*filter;
 };
 
 static inline void ext_set(unsigned int *ext, int flag)

@@ -23,13 +23,15 @@ static void main_delay_handler(struct nm_ctx *n)
 
 	win = n->win[WINDOW_INTERACTIVE];
 
+	leaveok(win, FALSE);
 	curs_set(1);
 	noraw();
 	echo();
 
 	nm_mvwprintw(win, n->cols, 0, 0,
 		     "Enter delay (current: %d, 0.1s units): ", n->delay);
-	wrefresh(win);
+	wnoutrefresh(win);
+	doupdate();
 
 	delay = 0;
 	seen_nl = FALSE;
@@ -72,6 +74,7 @@ err:
 	raw();
 	halfdelay(n->delay);
 	curs_set(0);
+	leaveok(win, TRUE);
 }
 
 static void main_field_handler(struct nm_ctx *n)
@@ -184,6 +187,27 @@ static void field_space_handler(struct nm_ctx *n)
 		return;
 
 	f->enabled = !f->enabled;
+	draw_field_header(n);
+}
+
+static void field_filter_handler(struct nm_ctx *n)
+{
+	const struct position *pos;
+	struct field *f;
+
+	pos = &n->pos[SCREEN_FIELD];
+	f = &tcp_fields[pos->y];
+
+	if (!f->filter_parse)
+		return;
+
+	if (!f->filter_on) {
+		if (!f->filter_parse(n, f))
+			f->filter_on = TRUE;
+	} else {
+		f->filter_on = FALSE;
+	}
+
 	draw_field_header(n);
 }
 
@@ -402,6 +426,7 @@ static const struct key_handler main_key_handler[] = {
 static const struct key_handler field_key_handler[] = {
 	DEFINE_KEY_HANDLER(KEY_ESC, field_quit_handler),
 	DEFINE_KEY_HANDLER(' ', field_space_handler),
+	DEFINE_KEY_HANDLER('f', field_filter_handler),
 	DEFINE_KEY_HANDLER('p', field_pin_handler),
 	DEFINE_KEY_HANDLER('q', field_quit_handler),
 	DEFINE_KEY_HANDLER('s', field_sort_handler),
