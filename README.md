@@ -7,8 +7,8 @@ sockmon is a tool for monitoring TCP/UDP connections on Linux. It retrieves conn
 Peer addresses have been redacted.
 
 ### Field configuration
-![Field configuration](https://hiroa-ki.github.io/screenshots/sockmon/0.2.0-0002.png)  
-![Field configuration](https://hiroa-ki.github.io/screenshots/sockmon/0.2.0-0003.png)
+![Field configuration](https://hiroa-ki.github.io/screenshots/sockmon/0.4.0-0001.png)  
+![Field configuration](https://hiroa-ki.github.io/screenshots/sockmon/0.4.0-0002.png)
 
 ## Requirements
 - Meson
