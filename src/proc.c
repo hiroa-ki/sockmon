@@ -274,6 +274,8 @@ int build_sk_proc_map(struct nm_ctx *n)
 			/* opendir() may fail because of permissions. */
 			continue;
 
+		memset(comm, 0, sizeof(comm));
+
 		ret = get_comm(n, p2, comm) ||
 		      sk_ino_make_map(n, dp_pid, pid, comm);
 		closedir(dp_pid);
