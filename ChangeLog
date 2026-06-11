@@ -1,0 +1,15 @@
+Version 0.4.0 (2026-06-11)
+==========================
+* Added simple filter functionality.
+
+Version 0.3.0 (2026-06-06)
+==========================
+* Added support for displaying PID and command name of the socket owner.
+
+Version 0.2.0 (2026-06-03)
+==========================
+* Added sort functionality.
+
+Version 0.1.0 (2026-05-31)
+==========================
+* Initial release.
