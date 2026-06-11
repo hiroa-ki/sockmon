@@ -1430,6 +1430,7 @@ static int fa_common(const struct field *f, const void *p)
 		TYPE_OP(U64)
 		break;
 	default:
+		ret = 0;
 		break;
 	}
 
