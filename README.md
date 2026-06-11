@@ -1,6 +1,11 @@
 # sockmon
 sockmon is a tool for monitoring TCP/UDP connections on Linux. It retrieves connection information via netlink and displays it periodically. The displayed items can be customized.
 
+## Features
+- Sort the connection list by specified fields.
+- Filter the connection list by address, port, or other fields.
+- Pin fields to keep selected fields visible while scrolling.
+
 ## Screenshots
 ### Main view
 ![Main view](https://hiroa-ki.github.io/screenshots/sockmon/0.2.0-0001.png)  
@@ -31,4 +36,4 @@ meson compile -C build
 ## License
 GPL-2.0-only
 
-Copyright (C) 2026 Hiroaki Shimoda
+Copyright (C) 2026 Hiroaki Shimoda <shimoda.hiroaki@gmail.com>
