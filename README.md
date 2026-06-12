@@ -21,9 +21,10 @@ Peer addresses have been redacted.
 
 ## Build
 ```bash
-meson setup build
-meson compile -C build
+meson setup [--optimization=2] builddir
+meson compile -C builddir
 ```
+--optimization=2 is optional. Builds and tests are usually performed with -O2 optimization.
 
 ## Run
 ```bash
