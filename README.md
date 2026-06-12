@@ -28,7 +28,7 @@ meson compile -C builddir
 
 ## Run
 ```bash
-./build/src/sockmon
+./builddir/src/sockmon
 ```
 
 - Press `q` to Quit.
