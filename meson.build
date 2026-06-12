@@ -1,2 +1,2 @@
-project('sockmon', 'c', version : '0.1.0')
+project('sockmon', 'c')
 subdir('src')
