@@ -76,7 +76,7 @@ int lookup_socket_owner(unsigned int inode, pid_t *pid, char *comm)
 	struct sk_owner *o;
 	int found;
 
-	found = 0;
+	found = FALSE;
 
 	if (!inode)
 		goto out;
@@ -88,7 +88,7 @@ int lookup_socket_owner(unsigned int inode, pid_t *pid, char *comm)
 				*pid = o->pid;
 			if (comm)
 				memcpy(comm, o->comm, sizeof(o->comm));
-			found = 1;
+			found = TRUE;
 			break;
 		}
 
