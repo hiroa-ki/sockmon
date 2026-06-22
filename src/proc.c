@@ -360,7 +360,7 @@ int proc_init(struct nm_ctx *n)
 
 	sk_ino_hb = calloc(map_hash_sz, sizeof(struct sk_owner *));
 	if (!sk_ino_hb) {
-		nm_perror(n, "sk_ino_hb: malloc", errno);
+		nm_perror(n, "sk_ino_hb: calloc", errno);
 		closedir(dp_proc);
 		goto out;
 	}
